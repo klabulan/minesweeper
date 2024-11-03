@@ -1,0 +1,35 @@
+.cell {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #00f3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cell.revealed {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.cell.selected {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: #00ff00;
+}
+
+.cell.bomb {
+  background: rgba(255, 0, 0, 0.3);
+  border-color: #ff00ff;
+}
+
+.cell.number-1 { color: #3498db; }
+.cell.number-2 { color: #2ecc71; }
+.cell.number-3 { color: #e74c3c; }
+.cell.number-4 { color: #9b59b6; }
+.cell.number-5 { color: #f1c40f; }
+.cell.number-6 { color: #1abc9c; }
+.cell.number-7 { color: #e67e22; }
+.cell.number-8 { color: #95a5a6; }

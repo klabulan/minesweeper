@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Miner</title>
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff00;
+            --bg-dark: #0a0a0a;
+            --cell-size: 40px;
+            --grid-cols: 12;
+            --grid-rows: 8;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header Styles */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+            margin: 0 0 20px 0;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        /* Game Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+            grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .cell.revealed {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .cell.bomb::before {
+            content: '💣';
+            font-size: 1.4rem;
+        }
+
+        .cell.bomb.exploded {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .cell.flag::before {
+            content: '🚩';
+        }
+
+        .cell.question::before {
+            content: '?';
+            color: var(--neon-pink);
+        }
+
+        /* Numbers */
+        .number-1 { color: #3498db; text-shadow: 0 0 5px #3498db; }
+        .number-2 { color: #2ecc71; text-shadow: 0 0 5px #2ecc71; }
+        .number-3 { color: #e74c3c; text-shadow: 0 0 5px #e74c3c; }
+        .number-4 { color: #9b59b6; text-shadow: 0 0 5px #9b59b6; }
+        .number-5 { color: #f1c40f; text-shadow: 0 0 5px #f1c40f; }
+        .number-6 { color: #1abc9c; text-shadow: 0 0 5px #1abc9c; }
+        .number-7 { color: #e67e22; text-shadow: 0 0 5px #e67e22; }
+        .number-8 { color: #95a5a6; text-shadow: 0 0 5px #95a5a6; }
+
+        /* Controls */
+        .game-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .scores-table th,
+        .scores-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            :root {
+                --cell-size: 30px;
+            }
+
+            .game-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --cell-size: 25px;
+            }
+
+            .game-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1 class="game-title">NEON MINER</h1>
+        <div class="game-stats">
+            <div class="stat-box">
+                <div>Time</div>
+                <div>00:00</div>
+                <div>Best: 01:23</div>
+            </div>
+            <div class="stat-box">
+                <div>Moves</div>
+                <div>0</div>
+            </div>
+            <div class="stat-box">
+                <div>Difficulty</div>
+                <div>Easy</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-grid">
+        <!-- Example cells with different states -->
+        <div class="cell revealed number-1">1</div>
+        <div class="cell revealed number-2">2</div>
+        <div class="cell flag"></div>
+        <div class="cell question"></div>
+        <div class="cell bomb"></div>
+        <div class="cell revealed number-3">3</div>
+        <div class="cell revealed"></div>
+        <div class="cell"></div>
+        <!-- Additional cells for demonstration -->
+        <div class="cell revealed number-4">4</div>
+        <div class="cell bomb exploded"></div>
+        <div class="cell revealed number-5">5</div>
+        <div class="cell"></div>
+        <!-- Continue for full grid -->
+    </div>
+
+    <div class="game-controls">
+        <button class="btn">New Game</button>
+        <button class="btn">High Scores</button>
+    </div>
+
+    <!-- High Scores Modal -->
+    <div class="modal" id="highScoresModal">
+        <div class="modal-content">
+            <h2>High Scores</h2>
+            <div class="difficulty-tabs">
+                <button class="btn">Easy</button>
+                <button class="btn">Medium</button>
+                <button class="btn">Hard</button>
+            </div>
+            <table class="scores-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Time</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Player1</td>
+                        <td>01:23</td>
+                        <td>2024-11-02</td>
+                    </tr>
+                    <!-- More score entries -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
